@@ -199,12 +199,10 @@ style this element.
          * Overidden from Polymer.IronControlState.
          */
          _onFocusedChanged: function(focused) {
-           if (focused) {
-             this.$.input.selectMonth();
-           } else if (this.value != '') {
-             this._handleAutoValidate();
-           }
-         }        
+          if (!focused) {
+            this._handleAutoValidate();
+          }
+        }      
       })
 
     })();

@@ -22,12 +22,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style>
       span {
-        @apply(--paper-input-container-font);
+        @apply --paper-input-container-font;
         opacity: 0.33;
         text-align: center;
       }
 
-      input[is="iron-input"] {
+      input {
         position: relative; /* to make a stacking context */
         outline: none;
         box-shadow: none;
@@ -38,13 +38,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--paper-input-container-input-color, --primary-text-color);
         text-align: center;
 
-        @apply(--layout-flex);
-        @apply(--paper-font-subhead);
-        @apply(--paper-input-container-input);
+        @apply --layout-flex;
+        @apply --paper-font-subhead;
+        @apply --paper-input-container-input;
       }
 
       .container {
-        @apply(--layout-horizontal);
+        @apply --layout-horizontal;
       }
     </style>
 
@@ -54,38 +54,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <span aria-hidden id="yearLabel" hidden>Year</span>
 
     <div class="container">
-      <input is="iron-input"
-          id="expirationMonth"
-          aria-labelledby$="[[_computeAriaLabel(ariaLabelPrefix,'monthLabel')]]"
-          required$="[[required]]"
-          maxlength="2"
-          bind-value="{{month}}"
-          placeholder="MM"
-          allowed-pattern="[0-9]"
-          prevent-invalid-input
-          autocomplete="cc-exp-month"
-          type="tel"
-          disabled$="[[disabled]]"
-          invalid="{{invalid}}"
-          autofocus$="[[autofocus]]"
-          inputmode$="[[inputmode]]"
-          readonly$="[[readonly]]">
+      <iron-input id="expirationMonth"
+        allowed-pattern="[0-9]"
+        bind-value="{{month}}"
+        invalid="{{invalid}}">
+        <input
+            id="nativeInput"
+            aria-labelledby$="[[_computeAriaLabel(ariaLabelPrefix,'monthLabel')]]"
+            required$="[[required]]"
+            maxlength="2"
+            placeholder="[[monthPlaceholder]]"
+            prevent-invalid-input
+            autocomplete="cc-exp-month"
+            type="tel"
+            disabled$="[[disabled]]"
+            invalid="{{invalid}}"
+            autofocus$="[[autofocus]]"
+            inputmode$="[[inputmode]]"
+            readonly$="[[readonly]]">
+        </iron-input>
       <span>/</span>
-      <input is="iron-input"
-          id="expirationYear"
-          aria-labelledby$="[[_computeAriaLabel(ariaLabelPrefix,'yearLabel')]]"
-          required$="[[required]]"
-          maxlength="2"
-          bind-value="{{year}}"
-          placeholder="YY"
-          allowed-pattern="[0-9]"
-          prevent-invalid-input
-          autocomplete="cc-exp-year"
-          type="tel"
-          disabled$="[[disabled]]"
-          invalid="{{invalid}}"
-          inputmode$="[[inputmode]]"
-          readonly$="[[readonly]]">
+      <iron-input id="expirationYear"
+        allowed-pattern="[0-9]"
+        bind-value="{{year}}"
+        invalid="{{invalid}}">
+        <input
+            id="nativeInput"
+            aria-labelledby$="[[_computeAriaLabel(ariaLabelPrefix,'yearLabel')]]"
+            required$="[[required]]"
+            maxlength="2"
+            placeholder="[[yearPlaceholder]]"
+            prevent-invalid-input
+            autocomplete="cc-exp-year"
+            type="tel"
+            disabled$="[[disabled]]"
+            inputmode$="[[inputmode]]"
+            readonly$="[[readonly]]">
+        </iron-input>
+        <div class="icon-container"><iron-icon id="icon"></iron-icon></div>
+      </iron-input>
     </div>
   </template>
 
@@ -119,11 +126,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       /**
+       * The month placeholder, default is 'MM'.
+       */
+      monthPlaceholder: {
+        type: String,
+        value: 'MM'
+      },
+
+      /**
        * The year component of the date displayed.
        */
       year: {
         type: String,
         value: ''
+      },
+
+      /**
+       * The year placeholder, default is 'YY'.
+       */
+      yearPlaceholder: {
+        type: String,
+        value: 'YY'
       },
 
       /**
@@ -182,16 +205,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       '_computeDate(month, year)'
     ],
 
+    _selectMonth: function() {
+      this.$.expirationMonth.inputElement.focus();
+    },
+
     _selectYear: function() {
       this.$.expirationYear.focus();
     },
 
     _computeDate: function(month, year) {
+      var monthChanged = true;
+      if (this.date != undefined) {
+        monthChanged = (this.date.month != month);
+      }
       // Months are 0-11.
       this.date = {month: month, year: year};
       this.fire('dateChanged', this.date);
       // Advance cursor to year after month entry
-      if (month && month.length === 2) {
+      if (monthChanged && month && month.length === 2 ) {
         this._selectYear();
       }
     },

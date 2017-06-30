@@ -66,9 +66,9 @@ style this element.
         disabled$="[[disabled]]"
         invalid="[[invalid]]">
 
-      <label hidden$="[[!label]]">[[label]]</label>
+      <label slot="label" hidden$="[[!label]]">[[label]]</label>
 
-      <date-input class="paper-input-input" id="input"
+      <date-input slot="input" class="paper-input-input" id="input"
           aria-label-prefix="[[_ariaLabelledBy]]"
           required$="[[required]]"
           autocomplete$="[[autocomplete]]"
@@ -77,11 +77,13 @@ style this element.
           autofocus$="[[autofocus]]"
           inputmode$="[[inputmode]]"
           placeholder$="[[placeholder]]"
-          readonly$="[[readonly]]">
+          readonly$="[[readonly]]"
+          month-placeholder="[[monthPlaceholder]]"
+          year-placeholder="[[yearPlaceholder]]">
       </date-input>
 
       <template is="dom-if" if="[[errorMessage]]">
-        <paper-input-error>[[errorMessage]]</paper-input-error>
+        <paper-input-error aria-live="assertive" slot="add-on">[[errorMessage]]</paper-input-error>
       </template>
 
     </paper-input-container>
@@ -117,6 +119,25 @@ style this element.
             type: String,
             value: '',
             observer: '_onValueChanged'
+          },
+
+          alwaysFloatLabel: {
+            type: Boolean,
+            value: true
+          },
+          /**
+          * The month placeholder, default is 'MM'.
+          */
+          monthPlaceholder: {
+            type: String,
+            value: 'MM'
+          },
+          /**
+          * The year placeholder, default is 'YY'.
+          */
+          yearPlaceholder: {
+            type: String,
+            value: 'YY'
           }
         },
 
@@ -130,8 +151,9 @@ style this element.
 
         ready: function() {
           // If there's an initial input, validate it.
-          if (this.value)
+          if (this.value) {
             this._handleAutoValidate();
+          }
         },
 
         /**
@@ -139,8 +161,9 @@ style this element.
          */
         _onValueChanged: function(value, oldValue) {
           // The initial property assignment is handled by `ready`.
-          if (oldValue == undefined)
+          if (oldValue == undefined) {
             return;
+          }
 
           this.$.input.month = this._computeMonth(value);
           this.$.input.year = this._computeYear(value);
@@ -175,12 +198,13 @@ style this element.
         /**
          * Overidden from Polymer.IronControlState.
          */
-        _onFocusedChanged: function(focused) {
-          if (!focused) {
-            this._handleAutoValidate();
-          }
-        }
-          
+         _onFocusedChanged: function(focused) {
+           if (focused) {
+             this.$.input.selectMonth();
+           } else if (this.value != '') {
+             this._handleAutoValidate();
+           }
+         }        
       })
 
     })();

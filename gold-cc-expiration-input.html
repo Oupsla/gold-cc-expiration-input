@@ -176,6 +176,9 @@ style this element.
           var value = year ? (month + '/' + year) : month;
 
           this.value = String(value);
+          if(month.length == 2 && year.length == 2 && this.validate()) {
+            this.fire('completed');
+          }
         },
 
         _computeMonth: function(value) {
